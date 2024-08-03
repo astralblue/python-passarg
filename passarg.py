@@ -1,7 +1,7 @@
 """
 OpenSSL-style password argument handling.
 
-See `the package README <https://pypi.org/projects/passarg/>`_ for details.
+See `the package README <https://pypi.org/project/passarg/>`_ for details.
 """
 
 __version__ = '0.0.1'

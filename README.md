@@ -112,4 +112,4 @@ reads `--pass-in` first then `--pass-out`,
 implementing the same input-password-first ordering as with OpenSSL.
 
 [python-dotenv]: https://pypi.org/project/python-dotenv/
-[openssl-passphrase-options(1)]: https//docs.openssl.org/3.3/man1/openssl-passphrase-options/
+[openssl-passphrase-options(1)]: https://docs.openssl.org/3.3/man1/openssl-passphrase-options/
