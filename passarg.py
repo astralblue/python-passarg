@@ -4,7 +4,7 @@ OpenSSL-style password argument handling.
 See `the package README <https://pypi.org/project/passarg/>`_ for details.
 """
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 import os
 import sys
