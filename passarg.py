@@ -7,15 +7,38 @@ See `the package README <https://pypi.org/project/passarg/>`_ for details.
 __version__ = '0.0.2'
 
 import os
+import subprocess
 import sys
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager, ExitStack
+from getpass import getpass
 from pathlib import Path
-from typing import Self
+from urllib.parse import urlsplit
 
 
 class InvalidPassArg(ValueError):
     """Invalid password argument."""
+
+
+_DEFAULT_OP_FIELD = 'password'
+
+
+def _read_from_op_url(url: str):
+    scheme, netloc, path, query, frag = urlsplit(url)
+    path = path.strip('/')
+    match path.rsplit('/', 1):
+        case [item, field]:
+            return _read_from_op(netloc, item, field or _DEFAULT_OP_FIELD)
+        case [item]:
+            return _read_from_op(netloc, item, _DEFAULT_OP_FIELD)
+
+
+def _read_from_op(vault: str, item: str, field: str):
+    cmd = ['op', 'item', 'get']
+    if vault:
+        cmd.append(f'--vault={vault}')
+    cmd.extend([f'--field={field}', '--reveal', '--', item])
+    return subprocess.check_output(cmd).decode().rstrip('\n')
 
 
 @contextmanager
@@ -53,6 +76,8 @@ def reader() -> Iterator[Callable[[str], str]]:
                 if the given ``env:`` variable is not found.
             :raises `OSError`:
                 if the given ``file:``(-like) source cannot be opened or read.
+            :raises `subprocess.CalledProcessError`:
+                if an external command (such as 1Password CLI) failed.
 
             .. _openssl-passphrase-options(1):
                 https//docs.openssl.org/3.3/man1/openssl-passphrase-options/
@@ -80,6 +105,12 @@ def reader() -> Iterator[Callable[[str], str]]:
                     return f.readline().rstrip('\n')
                 case ['stdin']:
                     return sys.stdin.readline().rstrip('\n')
+                case ['prompt']:
+                    return getpass()
+                case ['prompt', prompt]:
+                    return getpass(prompt)
+                case ['op', *_]:
+                    return _read_from_op_url(arg)
                 case _:
                     raise InvalidPassArg(arg)
 

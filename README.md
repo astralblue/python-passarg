@@ -28,48 +28,61 @@ from the file `dec-pass.txt` and the standard input respectively.
 
 # Passphrase Argument Syntax
 
-From [openssl-passphrase-options(1)]:
+passarg supports the following OpenSSL-compatible arguments
+([openssl-passphrase-options(1)]):
 
-> Pass phrase arguments can be formatted as follows.
->
-> * **pass**:*password*
->
->   The actual password is *password*.
->   Since the password is visible to utilities (like 'ps' under Unix)
->   this form should only be used where security is not important.
->
-> * **env**:*var*
->
->   Obtain the password from the environment variable *var*.
->   Since the environment of other processes is visible on certain platforms
->   (e.g. ps under certain Unix OSes)
->   this option should be used with caution.
->
-> * **file**:*pathname*
->
->   Reads the password from the specified file *pathname*,
->   which can be a regular file, device, or named pipe.
->   Only the first line, up to the newline character, is read from the stream.
->
->   If the same *pathname* argument is supplied
->   to both **-passin** and **-passout** arguments,
->   the first line will be used for the input password,
->   and the next line will be used for the output password.
->
-> * **fd**:*number*
->
->   Reads the password from the file descriptor *number*.
->   This can be useful for sending data via a pipe, for example.
->   The same line handling as described for **file:** applies
->   to passwords read from file descriptors.
->
->   **fd:** is not supported on Windows.
->
-> * **stdin**
->
->   Reads the password from standard input.
->   The same line handling as described for **file:** applies
->   to passwords read from standard input.
+* **pass**:*password*
+
+  The actual password is *password*.
+  Since the password is visible to utilities (like 'ps' under Unix)
+  this form should only be used where security is not important.
+
+* **env**:*var*
+
+  Obtain the password from the environment variable *var*.
+  Since the environment of other processes is visible on certain platforms
+  (e.g. ps under certain Unix OSes)
+  this option should be used with caution.
+
+* **file**:*pathname*
+
+  Reads the password from the specified file *pathname*,
+  which can be a regular file, device, or named pipe.
+  Only the first line, up to the newline character, is read from the stream.
+
+  If the same *pathname* argument is supplied
+  to both **-passin** and **-passout** arguments,
+  the first line will be used for the input password,
+  and the next line will be used for the output password.
+
+* **fd**:*number*
+
+  Reads the password from the file descriptor *number*.
+  This can be useful for sending data via a pipe, for example.
+  The same line handling as described for **file:** applies
+  to passwords read from file descriptors.
+
+  **fd:** is not supported on Windows.
+
+* **stdin**
+
+  Reads the password from standard input.
+  The same line handling as described for **file:** applies
+  to passwords read from standard input.
+
+passarg also supports the following non-OpenSSL extensions:
+
+* **prompt**[:*text*]
+
+  Prompts the password using Python [getpass()].
+  If *text* is given, it is used as the prompt.
+  Otherwise, the getpass default (`Password: `) is used.
+
+* **op**:[//*Vault*/]*TitleOrID*[/*field*]
+
+  Fetches the given item using the [1Password CLI].
+  *Vault* is optional and defaults to `Private` or `Employee`;
+  *field* is also optional and defaults to `password`.
 
 # .env ("dotenv") File Support
 
@@ -100,7 +113,7 @@ Then it can be run in the directory with an `.env` file like:
 MY_API_KEY=MySuperSecretKeyOmigod
 ```
 
-## Passargs Sharing Same File-like Source
+# Passargs Sharing Same File-like Source
 
 As explained in [Passphrase Argument Syntax](#passphrase-argument-syntax) above,
 multiple passphrase arguments can share the same file-like source,
@@ -113,3 +126,5 @@ implementing the same input-password-first ordering as with OpenSSL.
 
 [python-dotenv]: https://pypi.org/project/python-dotenv/
 [openssl-passphrase-options(1)]: https://docs.openssl.org/3.3/man1/openssl-passphrase-options/
+[getpass()]: https://docs.python.org/3/library/getpass.html#getpass.getpass
+[1Password CLI]: https://developer.1password.com/docs/cli/reference/management-commands/item#item-get
